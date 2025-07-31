@@ -1,0 +1,1687 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WalletConnect Network - The Onchain UX Platform</title>
+    <meta name="description" content="WalletConnect Network connects wallets, apps, and users to drive UX innovation and expand the decentralized ecosystem." />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' 
+                viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%233b82f6'/><path d='M30 40 L40 55 L50 40 L60 55 L70 40' stroke='white' stroke-width='6' fill='none'/></svg>" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --primary-blue: #3b82f6;
+        --primary-purple: #764ba2;
+        --gradient-start: #667eea;
+        --gradient-end: #764ba2;
+        --text-dark: #1f2937;
+        --text-light: #6b7280;
+        --bg-light: #f9fafb;
+        --bg-dark: #111827;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+        line-height: 1.6;
+        color: var(--text-dark);
+        overflow-x: hidden;
+      }
+
+      /* Mobile Status Bar */
+      .status-bar {
+        background: #000;
+        color: #fff;
+        padding: 8px 16px;
+        display: none;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 14px;
+        font-weight: 600;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+      }
+
+      .status-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .status-right {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .signal-bars {
+        display: flex;
+        gap: 2px;
+        align-items: flex-end;
+      }
+
+      .bar {
+        width: 3px;
+        background: #fff;
+      }
+
+      .bar:nth-child(1) { height: 4px; }
+      .bar:nth-child(2) { height: 6px; }
+      .bar:nth-child(3) { height: 8px; }
+      .bar:nth-child(4) { height: 10px; }
+
+      /* Navigation Header */
+      .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        z-index: 999;
+        padding: 1rem 2rem;
+        transition: all 0.3s ease;
+      }
+
+      .header.scrolled {
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .nav-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: var(--text-dark);
+        font-weight: 700;
+        font-size: 1.5rem;
+      }
+
+      .logo-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--primary-blue);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+
+      .logo-w {
+        width: 20px;
+        height: 15px;
+        position: relative;
+      }
+
+      .logo-w::before,
+      .logo-w::after {
+        content: "";
+        position: absolute;
+        width: 3px;
+        height: 12px;
+        background: #fff;
+        top: 2px;
+        border-radius: 1px;
+      }
+
+      .logo-w::before {
+        left: 3px;
+        transform: skew(-10deg);
+      }
+
+      .logo-w::after {
+        right: 3px;
+        transform: skew(10deg);
+      }
+
+      .nav-links {
+        display: flex;
+        list-style: none;
+        gap: 2rem;
+        align-items: center;
+      }
+
+      .nav-links a {
+        text-decoration: none;
+        color: var(--text-dark);
+        font-weight: 500;
+        transition: color 0.3s ease;
+        position: relative;
+      }
+
+      .nav-links a:hover {
+        color: var(--primary-blue);
+      }
+
+      .nav-links a::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: -5px;
+        left: 50%;
+        background: var(--primary-blue);
+        transition: all 0.3s ease;
+      }
+
+      .nav-links a:hover::after {
+        width: 100%;
+        left: 0;
+      }
+
+      .cta-nav-button {
+        background: var(--primary-blue);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .cta-nav-button:hover {
+        background: var(--primary-purple);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+      }
+
+      .mobile-menu-toggle {
+        display: none;
+        flex-direction: column;
+        cursor: pointer;
+        padding: 5px;
+        z-index: 1001;
+      }
+
+      .mobile-menu-toggle span {
+        width: 25px;
+        height: 3px;
+        background: var(--text-dark);
+        margin: 3px 0;
+        transition: 0.3s;
+        border-radius: 2px;
+      }
+
+      .mobile-menu-toggle.active span:nth-child(1) {
+        transform: rotate(-45deg) translate(-5px, 6px);
+        background: white;
+      }
+
+      .mobile-menu-toggle.active span:nth-child(2) {
+        opacity: 0;
+      }
+
+      .mobile-menu-toggle.active span:nth-child(3) {
+        transform: rotate(45deg) translate(-5px, -6px);
+        background: white;
+      }
+
+      /* Mobile Navigation Menu */
+      .mobile-nav-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+        z-index: 1000;
+      }
+
+      .mobile-nav-menu.active {
+        transform: translateX(0);
+      }
+
+      .mobile-nav-menu ul {
+        list-style: none;
+        text-align: center;
+      }
+
+      .mobile-nav-menu ul li {
+        margin: 30px 0;
+      }
+
+      .mobile-nav-menu ul li a {
+        color: white;
+        text-decoration: none;
+        font-size: 2rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+        display: block;
+        padding: 10px 20px;
+        border-radius: 10px;
+      }
+
+      .mobile-nav-menu ul li a:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.05);
+      }
+
+      .mobile-nav-cta {
+        margin-top: 40px;
+        padding: 15px 40px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 1.2rem;
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .mobile-nav-cta:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .mobile-nav-close {
+        position: absolute;
+        top: 30px;
+        right: 30px;
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+      }
+
+      .mobile-nav-close:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.1);
+      }
+
+      /* Hero Section */
+      .hero-section {
+        min-height: 100vh;
+        background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 120px 20px 20px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero-content {
+        max-width: 1200px;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 80px;
+        align-items: center;
+      }
+
+      .text-content {
+        color: white;
+        z-index: 10;
+      }
+
+      .main-title {
+        font-size: clamp(3rem, 8vw, 6rem);
+        font-weight: 800;
+        margin-bottom: 20px;
+        line-height: 1.1;
+        background: linear-gradient(45deg, #fff, #a8edea);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .subtitle {
+        font-size: clamp(1.5rem, 4vw, 2.5rem);
+        font-weight: 300;
+        margin-bottom: 30px;
+        opacity: 0.9;
+        line-height: 1.3;
+      }
+
+      .description {
+        font-size: clamp(1.1rem, 2vw, 1.3rem);
+        line-height: 1.6;
+        opacity: 0.8;
+        margin-bottom: 40px;
+        max-width: 600px;
+      }
+
+      .visual-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 40px;
+      }
+
+      .network-visualization {
+        width: 350px;
+        height: 350px;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 24px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .network-nodes {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+      }
+
+      .node {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 2px;
+        animation: pulse 2s infinite;
+      }
+
+      .node.active {
+        background: #fff;
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+      }
+
+      .connection-line {
+        position: absolute;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+        animation: flow 3s infinite;
+      }
+
+      .center-hub {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 24px;
+        height: 24px;
+        background: #fff;
+        border-radius: 50%;
+        z-index: 5;
+        animation: glow 2s infinite alternate;
+      }
+
+      .large-logo {
+        width: 180px;
+        height: 180px;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      }
+
+      .w-logo {
+        width: 80px;
+        height: 60px;
+        position: relative;
+      }
+
+      .w-shape {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      .w-shape::before,
+      .w-shape::after {
+        content: "";
+        position: absolute;
+        width: 8px;
+        height: 50px;
+        background: #333;
+        top: 5px;
+      }
+
+      .w-shape::before {
+        left: 8px;
+        transform: skew(-15deg);
+      }
+
+      .w-shape::after {
+        right: 8px;
+        transform: skew(15deg);
+      }
+
+      .w-middle {
+        position: absolute;
+        top: 25px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 15px solid transparent;
+        border-right: 15px solid transparent;
+        border-top: 20px solid #333;
+      }
+
+      .w-inner {
+        position: absolute;
+        top: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-bottom: 15px solid #333;
+      }
+
+      .floating-elements {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        overflow: hidden;
+      }
+
+      .floating-circle {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        animation: float 6s ease-in-out infinite;
+      }
+
+      .floating-circle:nth-child(1) {
+        width: 60px;
+        height: 60px;
+        top: 20%;
+        left: 10%;
+        animation-delay: -2s;
+      }
+
+      .floating-circle:nth-child(2) {
+        width: 40px;
+        height: 40px;
+        top: 60%;
+        right: 15%;
+        animation-delay: -4s;
+      }
+
+      .floating-circle:nth-child(3) {
+        width: 80px;
+        height: 80px;
+        bottom: 20%;
+        left: 20%;
+        animation-delay: -1s;
+      }
+
+      .cta-section {
+        text-align: center;
+        margin-top: 60px;
+      }
+
+      .cta-button {
+        display: inline-block;
+        padding: 16px 40px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.3s ease;
+        margin-right: 20px;
+        margin-bottom: 10px;
+      }
+
+      .cta-button:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .cta-button.secondary {
+        background: transparent;
+        border: 2px solid rgba(255, 255, 255, 0.5);
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+        margin-top: 80px;
+      }
+
+      .stat-item {
+        text-align: center;
+        color: white;
+      }
+
+      .stat-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 10px;
+        background: linear-gradient(45deg, #fff, #a8edea);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .stat-label {
+        font-size: 1rem;
+        opacity: 0.8;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      /* Features Section */
+      .features-section {
+        padding: 100px 20px;
+        background: var(--bg-light);
+      }
+
+      .features-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        text-align: center;
+      }
+
+      .section-title {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 20px;
+        background: linear-gradient(45deg, var(--primary-blue), var(--primary-purple));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .section-subtitle {
+        font-size: 1.3rem;
+        color: var(--text-light);
+        margin-bottom: 60px;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 40px;
+        margin-top: 60px;
+      }
+
+      .feature-card {
+        background: white;
+        padding: 40px 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-blue), var(--primary-purple));
+      }
+
+      .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+      }
+
+      .feature-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(45deg, var(--primary-blue), var(--primary-purple));
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 24px;
+      }
+
+      .feature-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+        color: var(--text-dark);
+      }
+
+      .feature-description {
+        color: var(--text-light);
+        line-height: 1.6;
+      }
+
+      /* Mobile Token Section */
+      .mobile-token-section {
+        background: #e8e8e8;
+        padding: 0;
+        min-height: 100vh;
+        display: none;
+        flex-direction: column;
+        margin-top: 80px;
+      }
+
+      .mobile-token-container {
+        background: #e8e8e8;
+        padding: 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+      }
+
+      .mobile-token-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 20px;
+      }
+
+      .mobile-token-description {
+        font-size: 1rem;
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 40px;
+        max-width: 280px;
+      }
+
+      .mobile-staking-button {
+        padding: 14px 32px;
+        background: #000;
+        color: #fff;
+        border: none;
+        border-radius: 25px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-bottom: 60px;
+        transition: all 0.3s ease;
+      }
+
+      .mobile-staking-button:hover {
+        background: #333;
+        transform: translateY(-2px);
+      }
+
+      .mobile-logo-container {
+        position: relative;
+        margin-bottom: 40px;
+      }
+
+      .mobile-wc-logo {
+        width: 200px;
+        height: 200px;
+        background: #3b82f6;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        position: relative;
+      }
+
+      .mobile-w-icon {
+        width: 80px;
+        height: 60px;
+        position: relative;
+      }
+
+      .mobile-w-shape {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      .mobile-w-shape::before,
+      .mobile-w-shape::after {
+        content: "";
+        position: absolute;
+        width: 8px;
+        height: 45px;
+        background: #fff;
+        top: 8px;
+        border-radius: 2px;
+      }
+
+      .mobile-w-shape::before {
+        left: 10px;
+        transform: skew(-12deg);
+      }
+
+      .mobile-w-shape::after {
+        right: 10px;
+        transform: skew(12deg);
+      }
+
+      .mobile-w-middle {
+        position: absolute;
+        top: 28px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 14px solid transparent;
+        border-right: 14px solid transparent;
+        border-top: 18px solid #fff;
+      }
+
+      .mobile-w-inner {
+        position: absolute;
+        top: 18px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 7px solid transparent;
+        border-right: 7px solid transparent;
+        border-bottom: 13px solid #fff;
+      }
+
+      .phone-mockup {
+        position: absolute;
+        bottom: -20px;
+        left: -50px;
+        width: 60px;
+        height: 100px;
+        background: #000;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      .phone-screen {
+        width: 50px;
+        height: 85px;
+        background: #fff;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0;
+      }
+
+      .mini-w-logo {
+        width: 25px;
+        height: 25px;
+        background: #000;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .mini-w {
+        width: 12px;
+        height: 9px;
+        position: relative;
+      }
+
+      .mini-w::before,
+      .mini-w::after {
+        content: "";
+        position: absolute;
+        width: 2px;
+        height: 8px;
+        background: #fff;
+        top: 0;
+      }
+
+      .mini-w::before {
+        left: 1px;
+        transform: skew(-10deg);
+      }
+
+      .mini-w::after {
+        right: 1px;
+        transform: skew(10deg);
+      }
+
+      .mobile-nav {
+        background: #333;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+      }
+
+      .nav-icon {
+        width: 24px;
+        height: 24px;
+        background: #666;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .nav-icon:hover {
+        background: #888;
+      }
+
+      .nav-icon.active {
+        background: #3b82f6;
+      }
+
+      /* Desktop Token Section */
+      .token-section {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        padding: 100px 20px;
+        text-align: center;
+      }
+
+      .token-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        padding: 60px 40px;
+        border-radius: 30px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .token-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, var(--primary-blue), var(--primary-purple));
+      }
+
+      .token-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--text-dark);
+        margin-bottom: 20px;
+        background: linear-gradient(45deg, var(--primary-blue), var(--primary-purple));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .token-description {
+        font-size: 1.3rem;
+        color: var(--text-light);
+        line-height: 1.6;
+        margin-bottom: 40px;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .staking-button {
+        padding: 16px 40px;
+        background: linear-gradient(45deg, var(--primary-blue), var(--primary-purple));
+        color: #fff;
+        font-size: 1.1rem;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        margin-bottom: 40px;
+      }
+
+      .staking-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(59, 130, 246, 0.4);
+      }
+
+      .token-logo-wrapper {
+        margin-top: 40px;
+      }
+
+      .token-logo {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+      }
+
+      /* Footer */
+      .footer {
+        background: var(--bg-dark);
+        color: white;
+        padding: 60px 20px 30px;
+      }
+
+      .footer-container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .footer-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 40px;
+        margin-bottom: 40px;
+      }
+
+      .footer-section h3 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: white;
+      }
+
+      .footer-section ul {
+        list-style: none;
+      }
+
+      .footer-section ul li {
+        margin-bottom: 10px;
+      }
+
+      .footer-section ul li a {
+        color: #9ca3af;
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+
+      .footer-section ul li a:hover {
+        color: var(--primary-blue);
+      }
+
+      .footer-bottom {
+        border-top: 1px solid #374151;
+        padding-top: 30px;
+        text-align: center;
+        color: #9ca3af;
+      }
+
+      .social-links {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+
+      .social-links a {
+        width: 40px;
+        height: 40px;
+        background: #374151;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        text-decoration: none;
+        transition: all 0.3s ease;
+      }
+
+      .social-links a:hover {
+        background: var(--primary-blue);
+        transform: translateY(-2px);
+      }
+
+      /* Animations */
+      @keyframes pulse {
+        0%, 100% {
+          opacity: 0.6;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.1);
+        }
+      }
+
+      @keyframes flow {
+        0% { opacity: 0; }
+        50% { opacity: 1; }
+        100% { opacity: 0; }
+      }
+
+      @keyframes glow {
+        0% {
+          box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+          transform: translate(-50%, -50%) scale(1);
+        }
+        100% {
+          box-shadow: 0 0 30px rgba(255, 255, 255, 0.9);
+          transform: translate(-50%, -50%) scale(1.1);
+        }
+      }
+
+      @keyframes float {
+        0%, 100% {
+          transform: translateY(0px) rotate(0deg);
+        }
+        33% {
+          transform: translateY(-20px) rotate(120deg);
+        }
+        66% {
+          transform: translateY(10px) rotate(240deg);
+        }
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .status-bar {
+          display: flex;
+        }
+
+        .header {
+          padding: 1rem;
+          background: rgba(255, 255, 255, 0.98);
+        }
+
+        .nav-links {
+          display: none;
+        }
+
+        .mobile-menu-toggle {
+          display: flex;
+        }
+
+        .hero-content {
+          grid-template-columns: 1fr;
+          gap: 40px;
+          text-align: center;
+          padding-top: 40px;
+        }
+
+        .hero-section {
+          padding-top: 140px;
+        }
+
+        .network-visualization {
+          width: 280px;
+          height: 280px;
+        }
+
+        .large-logo {
+          width: 140px;
+          height: 140px;
+        }
+
+        .stats-grid {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+
+        .description {
+          max-width: none;
+        }
+
+        .features-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .token-section {
+          display: none;
+        }
+
+        .mobile-token-section {
+          display: flex;
+        }
+
+        .section-title {
+          font-size: 2rem;
+        }
+
+        .token-container {
+          padding: 40px 20px;
+        }
+
+        .footer-content {
+          grid-template-columns: 1fr;
+          text-align: center;
+        }
+
+        .cta-section .cta-button {
+          display: block;
+          margin: 10px auto;
+          width: fit-content;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .hero-section {
+          padding: 100px 10px 10px;
+        }
+
+        .network-visualization {
+          width: 250px;
+          height: 250px;
+        }
+
+        .large-logo {
+          width: 120px;
+          height: 120px;
+        }
+
+        .mobile-wc-logo {
+          width: 180px;
+          height: 180px;
+        }
+
+        .mobile-token-description {
+          font-size: 0.95rem;
+        }
+
+        .main-title {
+          font-size: 2.5rem;
+        }
+
+        .subtitle {
+          font-size: 1.3rem;
+        }
+      }
+
+      /* Scroll animations */
+      .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.6s ease;
+      }
+
+      .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Mobile Status Bar -->
+    <div class="status-bar">
+      <div class="status-left">
+        <span>9:57</span>
+        <span>⚫</span>
+      </div>
+      <div class="status-right">
+        <span>🔒</span>
+        <span>📶</span>
+        <div class="signal-bars">
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+        <span>81%</span>
+        <span>🔋</span>
+      </div>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="header" id="header">
+      <div class="nav-container">
+        <a href="#" class="logo">
+          <div class="logo-icon">
+            <div class="logo-w"></div>
+          </div>
+          WalletConnect
+        </a>
+        
+        <nav class="nav-links">
+          <a href="#features">Features</a>
+          <a href="#token">Token</a>
+          <a href="#developers">Developers</a>
+          <a href="#docs">Docs</a>
+          <a href="#community">Community</a>
+          <a href="wallet.html" class="cta-nav-button">Get Started</a>
+        </nav>
+
+        <div class="mobile-menu-toggle" id="mobileToggle">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Mobile Navigation Menu -->
+    <div class="mobile-nav-menu" id="mobileNavMenu">
+      <button class="mobile-nav-close" id="mobileNavClose">&times;</button>
+      <ul>
+        <li><a href="#features" onclick="closeMobileMenu()">Features</a></li>
+        <li><a href="#token" onclick="closeMobileMenu()">Token</a></li>
+        <li><a href="#developers" onclick="closeMobileMenu()">Developers</a></li>
+        <li><a href="#docs" onclick="closeMobileMenu()">Docs</a></li>
+        <li><a href="#community" onclick="closeMobileMenu()">Community</a></li>
+      </ul>
+      <a href="wallet.html" class="mobile-nav-cta" onclick="closeMobileMenu()">Get Started</a>
+    </div>
+
+    <div class="floating-elements">
+      <div class="floating-circle"></div>
+      <div class="floating-circle"></div>
+      <div class="floating-circle"></div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="hero-content">
+        <div class="text-content">
+          <h1 class="main-title">WalletConnect Network</h1>
+          <h2 class="subtitle">The onchain UX</h2>
+          <p class="description">
+            Where wallets, apps, and users connect to drive UX innovation,
+            expand the ecosystem, and guide the network toward a decentralized,
+            permissionless future.
+          </p>
+
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-number">500M+</div>
+              <div class="stat-label">Connections</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">1000+</div>
+              <div class="stat-label">Apps</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">100+</div>
+              <div class="stat-label">Wallets</div>
+            </div>
+          </div>
+
+          <div class="cta-section">
+            <a href="#" class="cta-button">Explore Network</a>
+            <a href="#" class="cta-button secondary">View Docs</a>
+          </div>
+        </div>
+
+        <div class="visual-content">
+          <div class="network-visualization">
+            <div class="network-nodes">
+              <div class="node" style="top: 25px; left: 80px"></div>
+              <div class="node" style="top: 25px; right: 80px"></div>
+              <div class="node" style="top: 80px; left: 25px"></div>
+              <div class="node" style="top: 80px; right: 25px"></div>
+              <div class="node" style="bottom: 80px; left: 25px"></div>
+              <div class="node" style="bottom: 80px; right: 25px"></div>
+              <div class="node" style="bottom: 25px; left: 80px"></div>
+              <div class="node" style="bottom: 25px; right: 80px"></div>
+              <div class="node active" style="top: 40%; left: 35%"></div>
+              <div class="node active" style="top: 40%; right: 35%"></div>
+              <div class="node active" style="top: 60%; left: 50%; transform: translateX(-50%)"></div>
+              <div class="connection-line" style="top: 50%; left: 25%; width: 50%; transform: translateY(-50%)"></div>
+              <div class="connection-line" style="top: 35%; left: 40%; width: 20%; transform: rotate(45deg)"></div>
+              <div class="connection-line" style="top: 65%; left: 40%; width: 20%; transform: rotate(-45deg)"></div>
+              <div class="connection-line" style="top: 30%; left: 50%; height: 40%; width: 1px; transform: translateX(-50%)"></div>
+              <div class="connection-line" style="top: 25%; left: 35%; width: 30%; transform: rotate(30deg)"></div>
+              <div class="connection-line" style="bottom: 25%; right: 35%; width: 30%; transform: rotate(-30deg)"></div>
+            </div>
+            <div class="center-hub"></div>
+          </div>
+
+          <div class="large-logo">
+            <div class="w-logo">
+              <div class="w-shape"></div>
+              <div class="w-middle"></div>
+              <div class="w-inner"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section fade-in" id="features">
+      <div class="features-container">
+        <h2 class="section-title">Powering the Future of Web3</h2>
+        <p class="section-subtitle">
+          Built for developers, designed for users, secured by the community.
+        </p>
+        
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">🔗</div>
+            <h3 class="feature-title">Universal Connectivity</h3>
+            <p class="feature-description">
+              Connect any wallet to any dApp with our open protocol that supports 
+              over 100 wallets and 1000+ applications across multiple blockchains.
+            </p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">🛡️</div>
+            <h3 class="feature-title">Security First</h3>
+            <p class="feature-description">
+              End-to-end encryption and decentralized infrastructure ensure your 
+              connections are secure and private, with no single point of failure.
+            </p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3 class="feature-title">Lightning Fast</h3>
+            <p class="feature-description">
+              Optimized for speed and efficiency, enabling instant connections 
+              and seamless user experiences across all supported platforms.
+            </p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">🌐</div>
+            <h3 class="feature-title">Cross-Chain Support</h3>
+            <p class="feature-description">
+              Native support for Ethereum, Polygon, Arbitrum, Optimism, and 50+ 
+              other blockchains with seamless multi-chain experiences.
+            </p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">👥</div>
+            <h3 class="feature-title">Developer Friendly</h3>
+            <p class="feature-description">
+              Simple SDKs, comprehensive documentation, and powerful APIs make 
+              integration quick and easy for developers of all skill levels.
+            </p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">🎯</div>
+            <h3 class="feature-title">User Centric</h3>
+            <p class="feature-description">
+              Designed with users in mind, offering intuitive interfaces and 
+              seamless experiences that make Web3 accessible to everyone.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Mobile Token Section - Matches your image -->
+    <section class="mobile-token-section" id="token">
+      <div class="mobile-token-container">
+        <h2 class="mobile-token-title">Token (WCT)</h2>
+        <p class="mobile-token-description">
+          WCT is the native token of the WalletConnect Network and secures the network via staking, rewards, fees, and governance.
+        </p>
+        <button class="mobile-staking-button" onclick="window.open('#', '_blank')">Start Staking</button>
+        
+        <div class="mobile-logo-container">
+          <div class="mobile-wc-logo">
+            <div class="mobile-w-icon">
+              <div class="mobile-w-shape"></div>
+              <div class="mobile-w-middle"></div>
+              <div class="mobile-w-inner"></div>
+            </div>
+          </div>
+          <div class="phone-mockup">
+            <div class="phone-screen">
+              <div class="mini-w-logo">
+                <div class="mini-w"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mobile-nav">
+        <div class="nav-icon">❤️</div>
+        <div class="nav-icon">#️⃣</div>
+        <div class="nav-icon">#</div>
+        <div class="nav-icon">📤</div>
+        <div class="nav-icon active">🔄</div>
+      </div>
+    </section>
+
+    <!-- Desktop Token Section -->
+    <section class="token-section fade-in" id="token-desktop">
+      <div class="token-container">
+        <h2 class="token-title">WalletConnect Token (WCT)</h2>
+        <p class="token-description">
+          WCT is the native token of the WalletConnect Network that secures the network through staking, 
+          enables governance participation, and provides rewards to active network participants.
+        </p>
+        <a href="wallet.html"><button  class="staking-button" onclick="('#', '_blank')">Start Staking Now</button></a>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h3>Product</h3>
+            <ul>
+              <li><a href="#">WalletConnect</a></li>
+              <li><a href="#">Web3Modal</a></li>
+              <li><a href="#">Web3Wallet</a></li>
+              <li><a href="#">Cloud</a></li>
+            </ul>
+          </div>
+          
+          <div class="footer-section">
+            <h3>Developers</h3>
+            <ul>
+              <li><a href="#">Documentation</a></li>
+              <li><a href="#">GitHub</a></li>
+              <li><a href="#">SDKs</a></li>
+              <li><a href="#">API Reference</a></li>
+            </ul>
+          </div>
+          
+          <div class="footer-section">
+            <h3>Community</h3>
+            <ul>
+              <li><a href="#">Discord</a></li>
+              <li><a href="#">Twitter</a></li>
+              <li><a href="#">Telegram</a></li>
+              <li><a href="#">Blog</a></li>
+            </ul>
+          </div>
+          
+          <div class="footer-section">
+            <h3>Company</h3>
+            <ul>
+              <li><a href="#">About</a></li>
+              <li><a href="#">Careers</a></li>
+              <li><a href="#">Press</a></li>
+              <li><a href="#">Contact</a></li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="footer-bottom">
+          <div class="social-links">
+            <a href="#" aria-label="Twitter">🐦</a>
+            <a href="#" aria-label="Discord">💬</a>
+            <a href="#" aria-label="GitHub">💻</a>
+            <a href="#" aria-label="Telegram">📱</a>
+          </div>
+          <p>&copy; 2024 WalletConnect Network. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Header scroll effect
+      window.addEventListener('scroll', function() {
+        const header = document.getElementById('header');
+        if (window.scrollY > 100) {
+          header.classList.add('scrolled');
+        } else {
+          header.classList.remove('scrolled');
+        }
+      });
+
+      // Smooth scrolling for anchor links
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        });
+      });
+
+      // Intersection Observer for fade-in animations
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      };
+
+      const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, observerOptions);
+
+      // Observe all elements with fade-in class
+      document.querySelectorAll('.fade-in').forEach(el => {
+        observer.observe(el);
+      });
+
+      // Mobile menu functionality
+      const mobileToggle = document.getElementById('mobileToggle');
+      const mobileNavMenu = document.getElementById('mobileNavMenu');
+      const mobileNavClose = document.getElementById('mobileNavClose');
+
+      function openMobileMenu() {
+        mobileNavMenu.classList.add('active');
+        mobileToggle.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeMobileMenu() {
+        mobileNavMenu.classList.remove('active');
+        mobileToggle.classList.remove('active');
+        document.body.style.overflow = 'auto';
+      }
+
+      mobileToggle.addEventListener('click', function() {
+        if (mobileNavMenu.classList.contains('active')) {
+          closeMobileMenu();
+        } else {
+          openMobileMenu();
+        }
+      });
+
+      mobileNavClose.addEventListener('click', closeMobileMenu);
+
+      // Close mobile menu when clicking outside
+      mobileNavMenu.addEventListener('click', function(e) {
+        if (e.target === mobileNavMenu) {
+          closeMobileMenu();
+        }
+      });
+
+      // Close mobile menu on escape key
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && mobileNavMenu.classList.contains('active')) {
+          closeMobileMenu();
+        }
+      });
+
+      // Handle window resize
+      window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+          closeMobileMenu();
+        }
+      });
+
+      // Add click handlers for CTA buttons
+      document.querySelectorAll('.cta-button, .staking-button, .mobile-staking-button').forEach(button => {
+        button.addEventListener('click', function(e) {
+          if (this.textContent.includes('Staking')) {
+            // Handle staking button clicks
+            console.log('Staking functionality would be implemented here');
+          } else if (this.textContent.includes('Explore')) {
+            // Handle explore network clicks
+            console.log('Network exploration would be implemented here');
+          }
+        });
+      });
+
+      // Add hover effects to network nodes
+      document.querySelectorAll('.node').forEach(node => {
+        node.addEventListener('mouseenter', function() {
+          this.style.transform = 'scale(1.2)';
+          this.style.background = '#fff';
+        });
+        
+        node.addEventListener('mouseleave', function() {
+          this.style.transform = 'scale(1)';
+          this.style.background = this.classList.contains('active') ? '#fff' : 'rgba(255, 255, 255, 0.6)';
+        });
+      });
+
+      // Add typing effect to the main title
+      function typeWriter(element, text, speed = 100) {
+        let i = 0;
+        element.innerHTML = '';
+        
+        function type() {
+          if (i < text.length) {
+            element.innerHTML += text.charAt(i);
+            i++;
+            setTimeout(type, speed);
+          }
+        }
+        type();
+      }
+
+      // Initialize typing effect on page load
+      window.addEventListener('load', function() {
+        const title = document.querySelector('.main-title');
+        const originalText = title.textContent;
+        typeWriter(title, originalText, 150);
+      });
+    </script>
+  </body>
+</html>

